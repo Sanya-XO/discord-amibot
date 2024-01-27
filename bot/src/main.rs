@@ -80,6 +80,7 @@ async fn main() {
                 commands::profile::profile(),
                 commands::faculty_feedback::facultyfeedback(),
                 commands::schedule::schedule(),
+                commands::result::results(),
             ],
             ..Default::default()
         })

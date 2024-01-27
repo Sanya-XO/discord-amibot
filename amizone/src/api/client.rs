@@ -1,4 +1,4 @@
-use super::{types::*, user::credentials::UserMetaData};
+use super::{types::{*, go_amizone::server::proto::v1::{ExamResultRecord, OverallResult}}, user::credentials::UserMetaData};
 use go_amizone::server::proto::v1::{
     ClassScheduleRequest, DeregisterWifiMacRequest, EmptyMessage, FillFacultyFeedbackRequest,
     RegisterWifiMacRequest, SemesterRef,
@@ -46,6 +46,30 @@ impl UserClient {
 
         Ok((response.title, response.exams))
     }
+    
+
+    pub async fn get_exam_result(&mut self, num: usize) -> Result<(Vec<ExamResultRecord>, Vec<OverallResult>)> {
+        let request = self.prepare_request(SemesterRef {
+            semester_ref: num.to_string(),
+        });
+
+        let mut amizone = self.connection.lock().await;
+        let response = amizone.get_exam_result(request).await?.into_inner();
+        drop(amizone);
+
+        Ok((response.course_wise, response.overall))
+    }
+
+    pub async fn get_current_exam_result(&mut self) -> Result<(Vec<ExamResultRecord>, Vec<OverallResult>)> {
+        let request = self.prepare_request(EmptyMessage {});
+
+        let mut amizone = self.connection.lock().await;
+        let response = amizone.get_current_exam_result(request).await?.into_inner();
+        drop(amizone);
+
+        Ok((response.course_wise, response.overall))
+    }
+    
 
     pub async fn get_semesters(&mut self) -> Result<Vec<Semester>> {
         let request = self.prepare_request(EmptyMessage {});

@@ -6,6 +6,8 @@ use go_amizone::server::proto::v1::{
 pub type Date = google::r#type::Date;
 pub type AttendanceRecord = goamizone::AttendanceRecord;
 pub type ScheduledExam = goamizone::ScheduledExam;
+pub type ExamResultRecord = goamizone::ExamResultRecord;
+pub type OverallResult = goamizone::OverallResult;
 pub type ScheduledClass = goamizone::ScheduledClass;
 pub type AmizoneProfile = goamizone::Profile;
 pub type Semester = goamizone::Semester;
