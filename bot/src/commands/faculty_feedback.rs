@@ -81,7 +81,7 @@ pub async fn facultyfeedback(ctx: ApplicationContext<'_>) -> CommandResult {
         .await?;
 
     let reply = if filled > 0 {
-        format!("Successsfully filled feedback for `{}` faculties.", filled)
+        format!("Successfully filled feedback for `{}` faculties.", filled)
     } else {
         String::from("No faculty feedback exists for you.")
     };
