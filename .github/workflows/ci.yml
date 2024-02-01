@@ -1,0 +1,68 @@
+on:
+  push:
+    tags:
+      - '**'
+    branches:
+      - '**'
+  workflow_dispatch:
+
+name: CI
+
+jobs:
+  checks: 
+    runs-on: ubuntu-latest
+    # env:
+    #   DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    #   PRIVATE_ENCRPYPTION_KEY: ${{ secrets.PRIVATE_ENCRPYPTION_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+
+      - name: Bootstrap rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+          target: x86_64-unknown-linux-gnu
+        continue-on-error: true
+
+      - name: Bootstrap protoc
+        uses: arduino/setup-protoc@v2
+
+      - name: Update rust 
+        run: |
+          rustup update
+        continue-on-error: true
+
+      - name: Add target
+        run: |
+          rustup target add x86_64-unknown-linux-gnu
+        continue-on-error: true
+
+      - name: Formatting
+        run: |
+          cargo fmt --all -- --check 
+
+      - name: Lints
+        run: |
+          cargo clippy -- --no-deps -D warnings
+
+      # - name: Tests
+      #   run: |
+      #     cargo test --release crud
+      #     cargo test --release api 
+      #     cargo test --release bot
+
+      - name: Bootstrap fly 
+        uses: superfly/flyctl-actions/setup-flyctl@master
+        if: success() && github.ref == 'refs/heads/main'
+
+      - name: Deploy 
+        run: |
+          flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        if: success() && github.ref == 'refs/heads/main'
